@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gnlow/Qnot.git"
@@ -16,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/gnlow/Qnot/issues"
   },
-  "homepage": "https://github.com/gnlow/Qnot#readme"
+  "homepage": "https://github.com/gnlow/Qnot#readme",
+  "devDependencies": {
+    "typescript": "^3.7.4"
+  }
 }
