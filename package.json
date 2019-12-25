@@ -17,5 +17,8 @@
   "homepage": "https://github.com/gnlow/Qnot#readme",
   "devDependencies": {
     "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "froll": "0.0.0"
   }
 }
