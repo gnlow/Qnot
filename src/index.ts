@@ -84,4 +84,46 @@ const qnot = (length: number) => {
     return run([new Char("A")], 0, [], length);
 }
 var data = qnot(3);
-console.log(data, data.length);
+var cr = data.map(code => {
+    var crosses = [];
+    for(var i=0;i<3;i++){
+        crosses.push((code.match(new RegExp(`${key.upper[i]}(.*)${key.lower[i]}`)) as Array<any>)[1].length);
+    }
+    return crosses;
+});
+
+var cz = data.map(code => {
+    let lines = Array(3*2).fill(0);
+    let state = false;
+    let states: boolean[] = [];
+    let expects: string = "";
+    let lc: number[] = [];
+    let possible = true;
+    for(var [index, charStr] of [...code].entries()){
+        let char = new Char(charStr);
+        if(char.case == "lower"){
+            var upperI = code.indexOf(char.copy().upper().char);
+            var expect = states[upperI];
+            if(lines[upperI]){
+                if(lines[upperI]%2 == 1){
+                    state = !state;
+                    expect = !expect;
+                }
+            }
+            lc.push(lines[upperI]);
+            expects += +expect;
+            if(state != expect){
+                possible = false;
+            }
+            for(var i=upperI;i<index+1;i++){
+                lines[i]++;
+            }
+        }else{
+            expects += " ";
+            lc.push(0);
+        }
+        states.push(state);
+    }
+    return `\n${states.map(b => +b).join("")}\n${lc.join("")}\n${expects}\n${possible}\n`;
+});
+data.forEach((x, i) => console.log(x, cz[i]));
