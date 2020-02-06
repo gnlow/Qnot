@@ -83,7 +83,6 @@ const run = (
 const qnot = (length: number) => {
     return run([new Char("A")], 0, [], length);
 }
-var data = qnot(3);
 var cr = (code: string) => {
     var crosses = [];
     for(var i=0;i<3;i++){
@@ -109,16 +108,17 @@ var sz = (code: string) => {
     lows.forEach(low => {
         var upIndex = arr.findIndex(v => v.char == low.copy().upper().char);
         var lowIndex = arr.findIndex(v => v.char == low.char);
-        if(curState[upIndex] != curState[lowIndex]){
+        if(curState[upIndex] != curState[lowIndex] && lineds[upIndex].length%2 == 1){
             testOK = false;
         }
         if(lineds[upIndex].length){
             crosses[lowIndex] = true;
         }
-        console.log(low.copy().upper().char, upIndex, lowIndex)
         for(var i=upIndex+1;i<lowIndex;i++){
             lineds[i].push(low.char);
-            curState[i] = !curState[i];
+            if(lineds[upIndex].length){
+                curState[i] = !curState[i];
+            }
         }
     });
     
@@ -143,6 +143,7 @@ var sz = (code: string) => {
             }
         }
     });
+    /*
     console.log(
 `
 code  : ${code}
@@ -153,7 +154,8 @@ expect: ${expects.join("")}
 ok?   : ${ok}
 tOK?  : ${testOK}
 `)
-    return lineds;
+*/
+    return ok && testOK;
 };
 
 var cz = (code: string) => {
@@ -190,4 +192,47 @@ var cz = (code: string) => {
     }
     return `\n${states.map(b => +b).join("")}\n${lc.join("")}\n${expects}\n${possible}\n`;
 };
-data.forEach((x, i) => (sz(x)));
+var reverse = (code: string) => {
+    var source = Array.from(code).reverse();
+    var index: number[] = [];
+    var newCode = ""
+    for(var str of source){
+        var char = new Char(str);
+        if(char.case == "upper"){
+            char.index = index.indexOf(char.index);
+            char.case = "lower";
+            newCode += char.char;
+        }else{
+            index.push(char.index);
+            char.index = index.length - 1;
+            char.case = "upper";
+            newCode += char.char;
+        }
+    }
+    return newCode;
+};
+var data = qnot(4);
+var checked = data.map(x => ({data: x, check: sz(x)}));
+var wrong = checked.filter(x=>!x.check).map(x=>x.data);
+var noReverse: string[] = [];
+data.forEach((x)=>{
+    if(!noReverse.includes(reverse(x))){
+        noReverse.push(x);
+    }
+});
+var wrnr: string[] = [];
+wrong.forEach((x)=>{
+    if(!wrnr.includes(reverse(x))){
+        wrnr.push(x);
+    }
+});
+
+noReverse.forEach((x, i) => {
+    console.log(`${x} ${x!=reverse(x)?"R":" "} ${wrong.includes(x)?"x":" "}`);
+});
+console.log(`
+all      : ${data.length}
+noReverse: ${noReverse.length}
+wrong    : ${wrong.length}
+WRNR     : ${wrnr.length}
+`);
