@@ -84,15 +84,79 @@ const qnot = (length: number) => {
     return run([new Char("A")], 0, [], length);
 }
 var data = qnot(3);
-var cr = data.map(code => {
+var cr = (code: string) => {
     var crosses = [];
     for(var i=0;i<3;i++){
         crosses.push((code.match(new RegExp(`${key.upper[i]}(.*)${key.lower[i]}`)) as Array<any>)[1].length);
     }
     return crosses;
-});
+};
 
-var cz = data.map(code => {
+var sz = (code: string) => {
+    let arr = [...code].map(str => new Char(str));
+    let lows = arr.filter(char => char.case == "lower");
+    let lineds: string[][] = [];
+    let crosses: boolean[] = [];
+    let expects: Array<"o" | "x" | "-"> = [];
+    let curState: boolean[] = [];
+    for(var i=0;i<code.length;i++){ // Initialize
+        lineds.push([]);
+        crosses.push(false);
+        expects.push("-");
+        curState.push(true);
+    }
+    var testOK = true;
+    lows.forEach(low => {
+        var upIndex = arr.findIndex(v => v.char == low.copy().upper().char);
+        var lowIndex = arr.findIndex(v => v.char == low.char);
+        if(curState[upIndex] != curState[lowIndex]){
+            testOK = false;
+        }
+        if(lineds[upIndex].length){
+            crosses[lowIndex] = true;
+        }
+        console.log(low.copy().upper().char, upIndex, lowIndex)
+        for(var i=upIndex+1;i<lowIndex;i++){
+            lineds[i].push(low.char);
+            curState[i] = !curState[i];
+        }
+    });
+    
+    let state = true;
+    let states: boolean[] = [];
+    for(var i=0;i<code.length;i++){ // Check
+        if(crosses[i]){
+            state = !state;
+        }
+        states.push(state);
+    }
+    let ok = true;
+    lows.forEach(low => {
+        var upIndex = arr.findIndex(v => v.char == low.copy().upper().char);
+        var lowIndex = arr.findIndex(v => v.char == low.char);
+        if(lineds[upIndex].length){
+            expects[lowIndex] = "-";
+        }else{
+            expects[lowIndex] = states[upIndex]?"o":"x";
+            if(states[lowIndex] != states[upIndex]){
+                ok = false;
+            }
+        }
+    });
+    console.log(
+`
+code  : ${code}
+lines : ${lineds.map(x=>x.length).join("")}
+cross : ${crosses.map(x=>x?"x":" ").join("")}
+state : ${states.map(o=>o?"o":"x").join("")}
+expect: ${expects.join("")}
+ok?   : ${ok}
+tOK?  : ${testOK}
+`)
+    return lineds;
+};
+
+var cz = (code: string) => {
     let lines = Array(3*2).fill(0);
     let state = false;
     let states: boolean[] = [];
@@ -125,5 +189,5 @@ var cz = data.map(code => {
         states.push(state);
     }
     return `\n${states.map(b => +b).join("")}\n${lc.join("")}\n${expects}\n${possible}\n`;
-});
-data.forEach((x, i) => console.log(x, cz[i]));
+};
+data.forEach((x, i) => (sz(x)));
